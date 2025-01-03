@@ -1,12 +1,18 @@
 import React, { Component } from 'react'
+import Navbar from './components/Navbar.js';
+import News from './components/News.js';
 
-
-export default class App extends Component {
+class App extends Component {
   render() {
     return (
-      <div>
-        this is class based component
-      </div>
+      <>
+
+        <Navbar />
+        <News />
+
+      </>
     )
   }
 }
+
+export default App;
