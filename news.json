@@ -1,9 +1,7 @@
-import React, { Component } from 'react'
-import NewsItem from './NewsItem.js'
-
-class News extends Component {
-
-    articles = [
+{
+    "status": "ok",
+    "totalResults": 70,
+    "articles": [
         {
             "source": {
                 "id": null,
@@ -264,40 +262,5 @@ class News extends Component {
             "publishedAt": "2025-01-02T10:07:00Z",
             "content": "It may not come as a surprise to anyone who has gone on vacation this year, but the United Nations has made it official: global tourism returned to pre-pandemic levels in 2024.\r\nAmid stowawaypassenge… [+4238 chars]"
         }
-    ];
-    // Constructor
-    constructor() {
-        super();
-
-        // Defining All States here...
-        this.state = {
-            articles: this.articles,
-            loading: false
-        };
-
-    }
-
-
-    // Render Method
-    render() {
-        return (
-            <div className='container my-3'>
-                <h4 className="text-center">US. TOP HEADLINES</h4>
-                <hr className='mt-2 mb-5' />
-
-                <div className="row">
-                    {this.state.articles.map((article, i) => {
-                        if (!article.urlToImage) return true;
-                        return <NewsItem key={i} details={article} />
-                    })};
-                </div>
-            </div>
-        )
-    }
+    ]
 }
-
-
-
-
-
-export default News;
