@@ -1,56 +1,46 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import Navbar from './components/Navbar.js';
 import News from './components/News.js';
 import LoadingBar from 'react-top-loading-bar';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-class App extends Component {
 
-  API_KEY = "67540537801d46e8880f390fd1a31e1a";
+const App = () => {
 
-  categories = [
-    "business",
-    "entertainment",
-    "general",
-    "health",
-    "science",
-    "sports",
-    "technology",
-  ]
+  const API_KEY = process.env.REACT_APP_NEWS_API_KEY,
+    [progress, setProgress] = useState(0),
+    categories = [
+      "business",
+      "entertainment",
+      "general",
+      "health",
+      "science",
+      "sports",
+      "technology",
+    ]
 
-  state = {
-    progress: 0
-  }
+  return (
+    <>
+      <Router>
+        <LoadingBar
+          color="#f11946"
+          progress={progress}
+          onLoaderFinished={() => setProgress(0)}
+        />
+        <Navbar categories={categories} />
 
-  // Set Progress
-  setProgress = (progress) => {
-    this.setState({ progress });
-  }
+        <Routes>
+          <Route exact path="/" element={<News apiKey={API_KEY} setProgress={setProgress} category="general" />}></Route>
 
-  render() {
-    return (
-      <>
-        <Router>
-          <LoadingBar
-            color="#f11946"
-            progress={this.state.progress}
-            onLoaderFinished={() => this.setProgress(0)}
-          />
-          <Navbar categories={this.categories} />
+          {categories.map((category, index) => {
+            return <Route key={index} exact path={`/${category}`} element={<News key={index} apiKey={API_KEY} setProgress={setProgress} category={category} />}></Route>
+          })}
 
-          <Routes>
-            <Route exact path="/" element={<News apiKey={this.API_KEY} setProgress={this.setProgress} category="general" />}></Route>
+        </Routes>
 
-            {this.categories.map((category, index) => {
-              return <Route key={index} exact path={`/${category}`} element={<News key={index} apiKey={this.API_KEY} setProgress={this.setProgress} category={category} />}></Route>
-            })}
-
-          </Routes>
-
-        </Router>
-      </>
-    )
-  }
+      </Router>
+    </>
+  )
 }
 
-export default App;
+export default App
