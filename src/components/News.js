@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import NewsItem from './NewsItem.js'
 import PropTypes from 'prop-types'
 import InfiniteScroll from 'react-infinite-scroll-component';
-
+import Loader from './Loader.js';
 
 class News extends Component {
     API_KEY = '67540537801d46e8880f390fd1a31e1a';
@@ -38,13 +38,14 @@ class News extends Component {
     // Use API to fetch data
     componentDidMount() {
         return new Promise(async (res, rej) => {
-            console.log('Component Mounted');
+            this.props.setProgress(40);
             let articles = await this.fetchArticles();
 
             this.setState({
                 articles,
                 loading: false
             });
+            this.props.setProgress(100);
         });
     }
 
@@ -56,22 +57,17 @@ class News extends Component {
                 <h4 className="text-center">US. TOP HEADLINES</h4>
                 <hr className='mt-2 mb-5' />
 
-                {this.state.loading && <div className="text-center">Loading...</div>}
+                {this.state.loading && <Loader />}
 
 
                 <InfiniteScroll
                     dataLength={this.state.articles.length}
                     next={this.toggleNextArticles}
-                    hasMore={this.state.articles.length !== this.state.totalArticles}
-                    loader={<h4>Loading...</h4>}
-                    endMessage={
-                        <p style={{ textAlign: 'center' }}>
-                            <b>Yay! You have seen it all</b>
-                        </p>
-                    }
+                    hasMore={this.state.page < Math.ceil(this.state.totalArticles / this.PAGE_SIZE)}
+                    loader={<Loader />}
                 >
                     {
-                        !this.state.loading && <div className="row">
+                        !this.state.loading && <div className="row w-100">
                             {this.state.articles.map((article, i) => {
                                 if (!article.urlToImage) return true;
                                 return <NewsItem key={i} details={article} />
