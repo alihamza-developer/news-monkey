@@ -1,157 +1,116 @@
-import React, { Component } from 'react'
+import React, { useEffect, useState } from 'react'
 import NewsItem from './NewsItem.js'
 import PropTypes from 'prop-types'
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Loader from './Loader.js';
 
-class News extends Component {
+const News = ({ apiKey, country = 'us', category = 'health', setProgress }) => {
 
-    PAGE_SIZE = 20;
+    const PAGE_SIZE = 20;
 
-    // Default Props 
-    static defaultProps = {
-        country: "us",
-        category: "health"
+    // States
+    const [loading, setLoading] = useState(true),
+        [articles, setArticles] = useState([]),
+        [total, setTotalArticles] = useState(0),
+        [page, setPage] = useState(1);
+
+    useEffect(() => {
+        (async () => {
+
+            let articles = await fetchArticles();
+
+            setArticles(articles);
+            setLoading(false);
+        })();
+
+    }, []);
+
+    // Toggle Next
+    const toggleNextArticles = async () => {
+
+        if ((page + 1) > Math.ceil(total / PAGE_SIZE)) {
+            setPage(page);
+            return false;
+        }
+
+        setPage(page + 1);
+        setLoading(true);
+
+        let articles = await fetchArticles();
+
+        setArticles(articles);
+        setLoading(false);
     }
 
-    // Prop Types
-    static propTypes = {
-        country: PropTypes.string,
-        category: PropTypes.string,
-        apiKey: PropTypes.string.isRequired,
-    }
+    // Toggle Prev
+    const togglePrevArticles = async () => {
+        if (page < 1) return false;
+        setPage(page - 1);
+        setLoading(true);
+        let articles = await fetchArticles();
 
-
-    // Constructor
-    constructor() {
-        super();
-        // this.API_KEY = this.props.apiKey;
-        // Defining All States here...
-        this.state = {
-            articles: [],
-            totalArticles: 0,
-            loading: true,
-            page: 1
-        };
-
-    }
-
-    // Use API to fetch data
-    componentDidMount() {
-        return new Promise(async (res, rej) => {
-            let articles = await this.fetchArticles();
-
-            this.setState({
-                articles,
-                loading: false
-            });
-        });
-    }
-
-    // Render Method
-    render() {
-        this.API_KEY = this.props.apiKey;
-
-        return (
-            <div className='container my-3'>
-
-                <h4 className="text-center">US. TOP HEADLINES</h4>
-                <hr className='mt-2 mb-5' />
-
-                {this.state.loading && <Loader />}
-
-
-                <InfiniteScroll
-                    dataLength={this.state.articles.length}
-                    next={this.toggleNextArticles}
-                    hasMore={this.state.page < Math.ceil(this.state.totalArticles / this.PAGE_SIZE)}
-                    loader={<Loader />}
-                >
-                    {
-                        !this.state.loading && <div className="row w-100">
-                            {this.state.articles.map((article, i) => {
-                                if (!article.urlToImage) return true;
-                                return <NewsItem key={i} details={article} />
-                            })}
-                        </div>
-                    }
-
-
-                </InfiniteScroll>
-
-
-
-                <div className="d-flex justify-content-between">
-                    <button disabled={this.state.page <= 1} className="btn btn-sm btn-primary" onClick={this.togglePrevArticles}>Prev</button>
-                    <button disabled={this.state.page === Math.ceil(this.state.totalArticles / this.PAGE_SIZE)} className="btn btn-sm btn-primary" onClick={this.toggleNextArticles}>Next</button>
-                </div>
-
-            </div>
-        )
+        setArticles(articles);
+        setLoading(false);
     }
 
     // Fetch Articles
-    async fetchArticles() {
-        this.props.setProgress(40);
+    const fetchArticles = async () => {
+        setProgress(40);
 
-        let page = this.state.page,
-            url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=${this.API_KEY}&page=${page}&pageSize=${this.PAGE_SIZE}`,
+        let url = `https://newsapi.org/v2/top-headlines?country=${country}&category=${category}&apiKey=${apiKey}&page=${page}&pageSize=${PAGE_SIZE}`,
             response = await fetch(url);
         response = await response.json();
 
-        this.setState({
-            totalArticles: response.totalResults
-        });
-        this.props.setProgress(100);
+
+        setTotalArticles(response.totalArticles);
+
+        setProgress(100);
 
         return response.articles;
     }
 
-    // Toggle Next
-    toggleNextArticles = async () => {
-        let page = this.state.page;
-        page += 1;
-        if (page > Math.ceil(this.state.totalArticles / this.PAGE_SIZE)) {
-            this.setState({
-                page: page
-            });
-            return false;
-        }
 
-        this.setState({
-            page: page,
-            loading: true
-        }, async () => {
-            let articles = await this.fetchArticles();
-            this.setState({
-                articles: this.state.articles.concat(articles),
-                loading: false
-            });
-        });
+    return (
+        <div className='container my-3'>
 
-    }
-    // Toggle Prev
-    togglePrevArticles = async () => {
-        let page = this.state.page;
-        page -= 1;
+            <h4 className="text-center">US. TOP HEADLINES</h4>
+            <hr className='mt-2 mb-5' />
 
-        this.setState({
-            page: page,
-            loading: true
-        }, async () => {
-            let articles = await this.fetchArticles();
-            this.setState({
-                articles,
-                loading: false
-            });
-        });
+            {loading && <Loader />}
 
-    }
 
+            <InfiniteScroll
+                dataLength={articles.length}
+                next={toggleNextArticles}
+                hasMore={page < Math.ceil(total / PAGE_SIZE)}
+                loader={<Loader />}
+            >
+                {
+                    !loading && <div className="row w-100">
+                        {articles.map((article, i) => {
+                            if (!article.urlToImage) return true;
+                            return <NewsItem key={i} info={article} />
+                        })}
+                    </div>
+                }
+            </InfiniteScroll>
+
+
+
+            <div className="d-flex justify-content-between">
+                <button disabled={page <= 1} className="btn btn-sm btn-primary" onClick={togglePrevArticles}>Prev</button>
+                <button disabled={page === Math.ceil(total / PAGE_SIZE)} className="btn btn-sm btn-primary" onClick={toggleNextArticles}>Next</button>
+            </div>
+        </div>
+    )
 }
 
-
-
-
+// PropTypes
+News.prototype = {
+    category: PropTypes.string,
+    country: PropTypes.string,
+    apiKey: PropTypes.string.isRequired,
+}
 
 export default News;
+
