@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 class NewsItem extends Component {
     render() {
-        let { title, description, urlToImage, url } = this.props.details;
+        let { title, description, urlToImage, url, author, publishedAt } = this.props.details;
 
         return (
             <>
@@ -12,6 +12,8 @@ class NewsItem extends Component {
                         <div className="card-body">
                             <h5 className="card-title">{title?.slice(0, 30)}</h5>
                             <p className="card-text">{description?.slice(0, 50)}</p>
+
+                            <p className="card-text"><small className='text-muted'>By {author.trim().length ? author.trim() : "Unknown"}</small></p>
                             <a href={url} className="btn btn-sm btn-primary">Read more...</a>
                         </div>
                     </div>
