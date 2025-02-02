@@ -1,9 +1,25 @@
 import React, { Component } from 'react'
 import NewsItem from './NewsItem.js'
+import PropTypes from 'prop-types'
+
+
 
 class News extends Component {
     API_KEY = '67540537801d46e8880f390fd1a31e1a';
     PAGE_SIZE = 6;
+
+    // Default Props 
+    static defaultProps = {
+        country: "us",
+        category: "health"
+    }
+
+    // Prop Types
+    static propTypes = {
+        country: PropTypes.string,
+        category: PropTypes.string,
+    }
+
 
     // Constructor
     constructor() {
@@ -63,7 +79,7 @@ class News extends Component {
     // Fetch Articles
     async fetchArticles() {
         let page = this.state.page,
-            url = `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${this.API_KEY}&page=${page}&pageSize=${this.PAGE_SIZE}`,
+            url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=${this.API_KEY}&page=${page}&pageSize=${this.PAGE_SIZE}`,
             response = await fetch(url);
         response = await response.json();
 
