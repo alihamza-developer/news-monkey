@@ -4,6 +4,7 @@ import NewsItem from './NewsItem.js'
 class News extends Component {
     API_KEY = '67540537801d46e8880f390fd1a31e1a';
     PAGE_SIZE = 6;
+
     // Constructor
     constructor() {
         super();
@@ -21,6 +22,7 @@ class News extends Component {
     // Use API to fetch data
     componentDidMount() {
         return new Promise(async (res, rej) => {
+            console.log('Component Mounted');
             let articles = await this.fetchArticles();
 
             this.setState({
