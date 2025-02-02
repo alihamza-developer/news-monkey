@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
 import NewsItem from './NewsItem.js'
 import PropTypes from 'prop-types'
-
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 
 class News extends Component {
     API_KEY = '67540537801d46e8880f390fd1a31e1a';
-    PAGE_SIZE = 6;
+    PAGE_SIZE = 20;
 
     // Default Props 
     static defaultProps = {
@@ -58,14 +58,31 @@ class News extends Component {
 
                 {this.state.loading && <div className="text-center">Loading...</div>}
 
-                {
-                    !this.state.loading && <div className="row">
-                        {this.state.articles.map((article, i) => {
-                            if (!article.urlToImage) return true;
-                            return <NewsItem key={i} details={article} />
-                        })}
-                    </div>
-                }
+
+                <InfiniteScroll
+                    dataLength={this.state.articles.length}
+                    next={this.toggleNextArticles}
+                    hasMore={this.state.articles.length !== this.state.totalArticles}
+                    loader={<h4>Loading...</h4>}
+                    endMessage={
+                        <p style={{ textAlign: 'center' }}>
+                            <b>Yay! You have seen it all</b>
+                        </p>
+                    }
+                >
+                    {
+                        !this.state.loading && <div className="row">
+                            {this.state.articles.map((article, i) => {
+                                if (!article.urlToImage) return true;
+                                return <NewsItem key={i} details={article} />
+                            })}
+                        </div>
+                    }
+
+
+                </InfiniteScroll>
+
+
 
                 <div className="d-flex justify-content-between">
                     <button disabled={this.state.page <= 1} className="btn btn-sm btn-primary" onClick={this.togglePrevArticles}>Prev</button>
@@ -100,14 +117,13 @@ class News extends Component {
             return false;
         }
 
-
         this.setState({
             page: page,
             loading: true
         }, async () => {
             let articles = await this.fetchArticles();
             this.setState({
-                articles,
+                articles: this.state.articles.concat(articles),
                 loading: false
             });
         });
