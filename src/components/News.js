@@ -5,7 +5,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Loader from './Loader.js';
 
 class News extends Component {
-    API_KEY = '67540537801d46e8880f390fd1a31e1a';
+
     PAGE_SIZE = 20;
 
     // Default Props 
@@ -18,13 +18,14 @@ class News extends Component {
     static propTypes = {
         country: PropTypes.string,
         category: PropTypes.string,
+        apiKey: PropTypes.string.isRequired,
     }
 
 
     // Constructor
     constructor() {
         super();
-
+        // this.API_KEY = this.props.apiKey;
         // Defining All States here...
         this.state = {
             articles: [],
@@ -38,19 +39,19 @@ class News extends Component {
     // Use API to fetch data
     componentDidMount() {
         return new Promise(async (res, rej) => {
-            this.props.setProgress(40);
             let articles = await this.fetchArticles();
 
             this.setState({
                 articles,
                 loading: false
             });
-            this.props.setProgress(100);
         });
     }
 
     // Render Method
     render() {
+        this.API_KEY = this.props.apiKey;
+
         return (
             <div className='container my-3'>
 
@@ -91,6 +92,8 @@ class News extends Component {
 
     // Fetch Articles
     async fetchArticles() {
+        this.props.setProgress(40);
+
         let page = this.state.page,
             url = `https://newsapi.org/v2/top-headlines?country=${this.props.country}&category=${this.props.category}&apiKey=${this.API_KEY}&page=${page}&pageSize=${this.PAGE_SIZE}`,
             response = await fetch(url);
@@ -99,6 +102,8 @@ class News extends Component {
         this.setState({
             totalArticles: response.totalResults
         });
+        this.props.setProgress(100);
+
         return response.articles;
     }
 

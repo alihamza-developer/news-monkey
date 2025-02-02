@@ -2,14 +2,11 @@ import React, { Component } from 'react'
 import Navbar from './components/Navbar.js';
 import News from './components/News.js';
 import LoadingBar from 'react-top-loading-bar';
-
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 class App extends Component {
+
+  API_KEY = "67540537801d46e8880f390fd1a31e1a";
 
   categories = [
     "business",
@@ -42,10 +39,10 @@ class App extends Component {
           <Navbar categories={this.categories} />
 
           <Routes>
-            <Route exact path="/" element={<News setProgress={this.setProgress} category="general" />}></Route>
+            <Route exact path="/" element={<News apiKey={this.API_KEY} setProgress={this.setProgress} category="general" />}></Route>
 
             {this.categories.map((category, index) => {
-              return <Route key={index} exact path={`/${category}`} element={<News key={index} setProgress={this.setProgress} category={category} />}></Route>
+              return <Route key={index} exact path={`/${category}`} element={<News key={index} apiKey={this.API_KEY} setProgress={this.setProgress} category={category} />}></Route>
             })}
 
           </Routes>
